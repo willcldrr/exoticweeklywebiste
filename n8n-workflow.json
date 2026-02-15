@@ -273,12 +273,12 @@
   "variables": [
     {
       "key": "EXOTICS_WEEKLY_URL",
-      "value": "https://your-site.vercel.app",
+      "value": "https://exoticsweekly.com",
       "type": "string"
     },
     {
       "key": "EXOTICS_WEEKLY_API_KEY",
-      "value": "your-api-key-here",
+      "value": "CFSfWwcw75kOvT+iMZ6Sb4fUf4PYTfdhMkJVs7nXJMU=",
       "type": "string"
     },
     {
