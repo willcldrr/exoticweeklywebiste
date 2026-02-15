@@ -1,0 +1,290 @@
+{
+  "name": "Exotics Weekly Auto Publisher",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Daily 8 AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "url": "https://www.carscoops.com/feed/"
+      },
+      "id": "rss-carscoops",
+      "name": "Carscoops",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [220, -300]
+    },
+    {
+      "parameters": {
+        "url": "https://feeds.highgearmedia.com/?sites=MotorAuthority"
+      },
+      "id": "rss-motorauthority",
+      "name": "Motor Authority",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [220, -150]
+    },
+    {
+      "parameters": {
+        "url": "https://www.gtspirit.com/feed/"
+      },
+      "id": "rss-gtspirit",
+      "name": "GTspirit",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "url": "https://www.thesupercarblog.com/feed/"
+      },
+      "id": "rss-supercarblog",
+      "name": "Supercar Blog",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [220, 150]
+    },
+    {
+      "parameters": {
+        "url": "https://www.hagerty.com/media/feed/"
+      },
+      "id": "rss-hagerty",
+      "name": "Hagerty",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "mode": "append"
+      },
+      "id": "merge-feeds",
+      "name": "Merge All Feeds",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [480, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all items and limit to most recent 10\nconst items = $input.all();\n\n// Sort by publication date (newest first)\nconst sorted = items.sort((a, b) => {\n  const dateA = new Date(a.json.pubDate || a.json.isoDate || 0);\n  const dateB = new Date(b.json.pubDate || b.json.isoDate || 0);\n  return dateB - dateA;\n});\n\n// Take only the 5 most recent items\nconst recent = sorted.slice(0, 5);\n\n// Filter for exotic/classic car content\nconst keywords = ['ferrari', 'porsche', 'lamborghini', 'aston martin', 'bugatti', \n                  'mclaren', 'pagani', 'koenigsegg', 'auction', 'classic', \n                  'vintage', 'collector', 'racing', 'motorsport', 'concours',\n                  'gt', 'supercar', 'hypercar', 'exotic'];\n\nconst filtered = recent.filter(item => {\n  const title = (item.json.title || '').toLowerCase();\n  const content = (item.json.content || item.json.contentSnippet || '').toLowerCase();\n  return keywords.some(kw => title.includes(kw) || content.includes(kw));\n});\n\n// Return top 3 most relevant\nreturn filtered.slice(0, 3).map(item => ({\n  json: {\n    sourceTitle: item.json.title,\n    sourceContent: item.json.content || item.json.contentSnippet || item.json.description || '',\n    sourceUrl: item.json.link,\n    sourceName: item.json.creator || 'External Source',\n    pubDate: item.json.pubDate || item.json.isoDate\n  }\n}));"
+      },
+      "id": "filter-relevant",
+      "name": "Filter & Prepare",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 0]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.EXOTICS_WEEKLY_URL }}/api/stories",
+        "options": {}
+      },
+      "id": "get-existing",
+      "name": "Get Existing Stories",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [920, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get current item and existing stories\nconst currentItem = $input.first().json;\nconst existingStories = $('Get Existing Stories').first().json.stories || [];\n\n// Check if this story already exists (by checking title similarity)\nconst currentTitle = currentItem.sourceTitle.toLowerCase();\n\nconst isDuplicate = existingStories.some(story => {\n  const existingTitle = story.title.toLowerCase();\n  // Check for significant word overlap\n  const currentWords = currentTitle.split(/\\s+/).filter(w => w.length > 4);\n  const matchCount = currentWords.filter(word => existingTitle.includes(word)).length;\n  return matchCount >= 3; // If 3+ significant words match, consider it duplicate\n});\n\nif (isDuplicate) {\n  return []; // Skip this item\n}\n\nreturn [$input.first()];"
+      },
+      "id": "check-duplicates",
+      "name": "Skip Duplicates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1140, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.ANTHROPIC_API_KEY }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-20250514\",\n  \"max_tokens\": 2500,\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"You are the lead writer for Exotics Weekly, a prestigious automotive publication covering exotic cars, historic motorsport, and collector car culture. Your writing style is elegant, authoritative, and evokes an early 1900s industrial aesthetic—think understated sophistication with deep automotive expertise. You write like a seasoned automotive journalist who has personally driven these machines and understands their significance.\\n\\nRewrite this news item as an original Exotics Weekly article:\\n\\nOriginal Headline: {{ $json.sourceTitle }}\\n\\nOriginal Content:\\n{{ $json.sourceContent }}\\n\\nSource: {{ $json.sourceName }}\\n\\nREQUIREMENTS:\\n1. Write in Exotics Weekly's distinctive voice - authoritative, elegant, knowledgeable\\n2. Create a completely original headline (never copy the source headline)\\n3. Add expert context, historical perspective, and market analysis where appropriate\\n4. Include a compelling subtitle that adds depth\\n5. Format the article content as clean HTML with <p> tags for paragraphs\\n6. Article length: 350-500 words\\n7. Do NOT plagiarize - completely rewrite and add original analysis\\n8. Choose the most appropriate category based on content\\n9. Generate 3-5 relevant tags\\n\\nYou MUST respond with ONLY valid JSON in this exact format (no markdown, no explanation, just the JSON object):\\n{\\n  \\\"title\\\": \\\"Your original headline here\\\",\\n  \\\"subtitle\\\": \\\"Your compelling subtitle here\\\",\\n  \\\"excerpt\\\": \\\"A 1-2 sentence summary for preview cards\\\",\\n  \\\"content\\\": \\\"<p>Your full article with HTML paragraph tags...</p>\\\",\\n  \\\"category\\\": \\\"News\\\",\\n  \\\"tags\\\": [\\\"Tag1\\\", \\\"Tag2\\\", \\\"Tag3\\\"]\\n}\\n\\nValid categories are: News, Reviews, Auctions, Heritage, Motorsport, Collecting\\n\\nRespond with ONLY the JSON object, no other text.\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "claude-rewrite",
+      "name": "Claude AI Rewrite",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1360, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\n\n// Extract the text content from Claude's response\nlet articleText = '';\nif (response.content && response.content[0] && response.content[0].text) {\n  articleText = response.content[0].text;\n}\n\n// Parse the JSON from Claude's response\nlet article;\ntry {\n  // Clean up the response - remove any markdown code blocks if present\n  articleText = articleText.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n  article = JSON.parse(articleText);\n} catch (e) {\n  // If parsing fails, try to extract JSON from the response\n  const jsonMatch = articleText.match(/\\{[\\s\\S]*\\}/);\n  if (jsonMatch) {\n    article = JSON.parse(jsonMatch[0]);\n  } else {\n    throw new Error('Failed to parse Claude response as JSON: ' + articleText.substring(0, 200));\n  }\n}\n\n// Get source info from earlier in the workflow\nconst sourceData = $('Skip Duplicates').first().json;\n\n// Validate required fields\nconst requiredFields = ['title', 'excerpt', 'content', 'category'];\nfor (const field of requiredFields) {\n  if (!article[field]) {\n    throw new Error(`Missing required field: ${field}`);\n  }\n}\n\n// Validate category\nconst validCategories = ['News', 'Reviews', 'Auctions', 'Heritage', 'Motorsport', 'Collecting'];\nif (!validCategories.includes(article.category)) {\n  article.category = 'News'; // Default to News if invalid\n}\n\nreturn [{\n  json: {\n    title: article.title,\n    subtitle: article.subtitle || null,\n    excerpt: article.excerpt,\n    content: article.content,\n    author: 'Exotics Weekly Editorial',\n    category: article.category,\n    tags: article.tags || [],\n    featured: false,\n    status: 'published',\n    source_url: sourceData.sourceUrl || null,\n    source_name: sourceData.sourceName || null\n  }\n}];"
+      },
+      "id": "parse-response",
+      "name": "Parse Claude Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1580, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.EXOTICS_WEEKLY_URL }}/api/stories",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.EXOTICS_WEEKLY_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "publish-story",
+      "name": "Publish to Website",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1800, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\n\nif (response.success) {\n  return [{\n    json: {\n      status: 'success',\n      message: `Published: ${response.story.title}`,\n      storyId: response.story.id,\n      slug: response.story.slug\n    }\n  }];\n} else {\n  return [{\n    json: {\n      status: 'error',\n      message: response.error || 'Unknown error'\n    }\n  }];\n}"
+      },
+      "id": "log-result",
+      "name": "Log Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2020, 0]
+    }
+  ],
+  "connections": {
+    "Daily 8 AM": {
+      "main": [
+        [
+          { "node": "Carscoops", "type": "main", "index": 0 },
+          { "node": "Motor Authority", "type": "main", "index": 0 },
+          { "node": "GTspirit", "type": "main", "index": 0 },
+          { "node": "Supercar Blog", "type": "main", "index": 0 },
+          { "node": "Hagerty", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Carscoops": {
+      "main": [
+        [{ "node": "Merge All Feeds", "type": "main", "index": 0 }]
+      ]
+    },
+    "Motor Authority": {
+      "main": [
+        [{ "node": "Merge All Feeds", "type": "main", "index": 1 }]
+      ]
+    },
+    "GTspirit": {
+      "main": [
+        [{ "node": "Merge All Feeds", "type": "main", "index": 2 }]
+      ]
+    },
+    "Supercar Blog": {
+      "main": [
+        [{ "node": "Merge All Feeds", "type": "main", "index": 3 }]
+      ]
+    },
+    "Hagerty": {
+      "main": [
+        [{ "node": "Merge All Feeds", "type": "main", "index": 4 }]
+      ]
+    },
+    "Merge All Feeds": {
+      "main": [
+        [{ "node": "Filter & Prepare", "type": "main", "index": 0 }]
+      ]
+    },
+    "Filter & Prepare": {
+      "main": [
+        [{ "node": "Get Existing Stories", "type": "main", "index": 0 }]
+      ]
+    },
+    "Get Existing Stories": {
+      "main": [
+        [{ "node": "Skip Duplicates", "type": "main", "index": 0 }]
+      ]
+    },
+    "Skip Duplicates": {
+      "main": [
+        [{ "node": "Claude AI Rewrite", "type": "main", "index": 0 }]
+      ]
+    },
+    "Claude AI Rewrite": {
+      "main": [
+        [{ "node": "Parse Claude Response", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parse Claude Response": {
+      "main": [
+        [{ "node": "Publish to Website", "type": "main", "index": 0 }]
+      ]
+    },
+    "Publish to Website": {
+      "main": [
+        [{ "node": "Log Result", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "variables": [
+    {
+      "key": "EXOTICS_WEEKLY_URL",
+      "value": "https://your-site.vercel.app",
+      "type": "string"
+    },
+    {
+      "key": "EXOTICS_WEEKLY_API_KEY",
+      "value": "your-api-key-here",
+      "type": "string"
+    },
+    {
+      "key": "ANTHROPIC_API_KEY",
+      "value": "your-anthropic-api-key",
+      "type": "string"
+    }
+  ]
+}
