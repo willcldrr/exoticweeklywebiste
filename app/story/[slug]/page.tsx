@@ -195,13 +195,21 @@ export default function StoryPage({ params }: { params: Promise<{ slug: string }
             </div>
           </header>
 
-          {/* Featured Image Placeholder */}
-          <div className="aspect-[16/9] bg-white/5 my-10">
-            <div className="w-full h-full bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center">
-              <span className="text-white/30 text-sm tracking-widest uppercase">
-                Featured Image
-              </span>
-            </div>
+          {/* Featured Image */}
+          <div className="aspect-[16/9] bg-white/5 my-10 overflow-hidden">
+            {story.imageUrl ? (
+              <img
+                src={story.imageUrl}
+                alt={story.title}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center">
+                <span className="text-white/30 text-sm tracking-widest uppercase">
+                  {story.category}
+                </span>
+              </div>
+            )}
           </div>
           {story.imageCaption && (
             <p className="text-sm text-white/50 text-center -mt-6 mb-10 italic">
@@ -283,11 +291,19 @@ export default function StoryPage({ params }: { params: Promise<{ slug: string }
                   className="group story-card block"
                 >
                   <div className="aspect-[16/10] bg-white/5 mb-4 overflow-hidden">
-                    <div className="w-full h-full bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center">
-                      <span className="text-white/30 text-xs tracking-widest uppercase">
-                        {related.category}
-                      </span>
-                    </div>
+                    {related.imageUrl ? (
+                      <img
+                        src={related.imageUrl}
+                        alt={related.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center">
+                        <span className="text-white/30 text-xs tracking-widest uppercase">
+                          {related.category}
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <span className="text-white/50 uppercase tracking-widest text-xs">

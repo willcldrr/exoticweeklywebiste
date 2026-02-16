@@ -1,0 +1,54 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "HTTP-Referer",
+              "value": "https://exoticsweekly.com"
+            },
+            {
+              "name": "X-Title",
+              "value": "Exotics Weekly"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"anthropic/claude-sonnet-4\",\n  \"max_tokens\": 2500,\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"You are the lead writer for Exotics Weekly, a prestigious automotive publication covering exotic cars, historic motorsport, and collector car culture. Your writing style is elegant, authoritative, and evokes an early 1900s industrial aesthetic—think understated sophistication with deep automotive expertise. You write like a seasoned automotive journalist who has personally driven these machines and understands their significance.\\n\\nRewrite this news item as an original Exotics Weekly article:\\n\\nOriginal Headline: {{ $json.sourceTitle }}\\n\\nOriginal Content:\\n{{ $json.sourceContent }}\\n\\nSource: {{ $json.sourceName }}\\n\\nREQUIREMENTS:\\n1. Write in Exotics Weekly's distinctive voice - authoritative, elegant, knowledgeable\\n2. Create a completely original headline (never copy the source headline)\\n3. Add expert context, historical perspective, and market analysis where appropriate\\n4. Include a compelling subtitle that adds depth\\n5. Format the article content as clean HTML with <p> tags for paragraphs\\n6. Article length: 350-500 words\\n7. Do NOT plagiarize - completely rewrite and add original analysis\\n8. Choose the most appropriate category based on content\\n9. Generate 3-5 relevant tags\\n\\nYou MUST respond with ONLY valid JSON in this exact format (no markdown, no explanation, just the JSON object):\\n{\\n  \\\"title\\\": \\\"Your original headline here\\\",\\n  \\\"subtitle\\\": \\\"Your compelling subtitle here\\\",\\n  \\\"excerpt\\\": \\\"A 1-2 sentence summary for preview cards\\\",\\n  \\\"content\\\": \\\"<p>Your full article with HTML paragraph tags...</p>\\\",\\n  \\\"category\\\": \\\"News\\\",\\n  \\\"tags\\\": [\\\"Tag1\\\", \\\"Tag2\\\", \\\"Tag3\\\"]\\n}\\n\\nValid categories are: News, Reviews, Auctions, Heritage, Motorsport, Collecting\\n\\nRespond with ONLY the JSON object, no other text.\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "78591d49-a1cb-4add-a7ec-13cbd50005d3",
+      "name": "Claude AI Rewrite",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1680,
+        160
+      ]
+    }
+  ],
+  "connections": {
+    "Claude AI Rewrite": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "8b06da54803bad67977d1c5a0499b1b141adf8be64fa85ac1134fc60532ff913"
+  }
+}

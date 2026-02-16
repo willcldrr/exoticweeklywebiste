@@ -159,11 +159,19 @@ export default function Home() {
                 <div className="lg:col-span-2">
                   <Link href={`/story/${heroStory.slug}`} className="group block">
                     <div className="aspect-[16/9] bg-white/5 mb-6 overflow-hidden">
-                      <div className="w-full h-full bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center">
-                        <span className="text-white/30 text-sm tracking-widest uppercase">
-                          {heroStory.category}
-                        </span>
-                      </div>
+                      {heroStory.imageUrl ? (
+                        <img
+                          src={heroStory.imageUrl}
+                          alt={heroStory.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center">
+                          <span className="text-white/30 text-sm tracking-widest uppercase">
+                            {heroStory.category}
+                          </span>
+                        </div>
+                      )}
                     </div>
                     <div className="space-y-4">
                       <div className="flex items-center gap-3 text-sm">
@@ -192,11 +200,19 @@ export default function Home() {
                   {secondaryFeatured && (
                     <Link href={`/story/${secondaryFeatured.slug}`} className="group block">
                       <div className="aspect-[4/3] bg-white/5 mb-4 overflow-hidden">
-                        <div className="w-full h-full bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center">
-                          <span className="text-white/30 text-xs tracking-widest uppercase">
-                            {secondaryFeatured.category}
-                          </span>
-                        </div>
+                        {secondaryFeatured.imageUrl ? (
+                          <img
+                            src={secondaryFeatured.imageUrl}
+                            alt={secondaryFeatured.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center">
+                            <span className="text-white/30 text-xs tracking-widest uppercase">
+                              {secondaryFeatured.category}
+                            </span>
+                          </div>
+                        )}
                       </div>
                       <div className="space-y-3">
                         <div className="flex items-center gap-2 text-xs">
@@ -260,11 +276,19 @@ export default function Home() {
                   className="group story-card block"
                 >
                   <div className="aspect-[16/10] bg-white/5 mb-4 overflow-hidden">
-                    <div className="w-full h-full bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center">
-                      <span className="text-white/30 text-xs tracking-widest uppercase">
-                        {story.category}
-                      </span>
-                    </div>
+                    {story.imageUrl ? (
+                      <img
+                        src={story.imageUrl}
+                        alt={story.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center">
+                        <span className="text-white/30 text-xs tracking-widest uppercase">
+                          {story.category}
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-xs">

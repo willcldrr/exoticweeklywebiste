@@ -1,0 +1,225 @@
+{
+  "name": "Exotics Weekly Auto Publisher",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Daily 8 AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "url": "https://www.carscoops.com/feed/"
+      },
+      "id": "rss-carscoops",
+      "name": "Carscoops",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [220, -100]
+    },
+    {
+      "parameters": {
+        "url": "https://feeds.highgearmedia.com/?sites=MotorAuthority"
+      },
+      "id": "rss-motorauthority",
+      "name": "Motor Authority",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [220, 50]
+    },
+    {
+      "parameters": {
+        "url": "https://www.gtspirit.com/feed/"
+      },
+      "id": "rss-gtspirit",
+      "name": "GTspirit",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [220, 200]
+    },
+    {
+      "parameters": {
+        "mode": "append"
+      },
+      "id": "merge-feeds",
+      "name": "Merge All Feeds",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [480, 50]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all items\nconst items = $input.all();\n\n// Sort by publication date (newest first)\nconst sorted = items.sort((a, b) => {\n  const dateA = new Date(a.json.pubDate || a.json.isoDate || 0);\n  const dateB = new Date(b.json.pubDate || b.json.isoDate || 0);\n  return dateB - dateA;\n});\n\n// Filter for exotic/classic car content\nconst keywords = ['ferrari', 'porsche', 'lamborghini', 'aston martin', 'bugatti', \n                  'mclaren', 'pagani', 'koenigsegg', 'auction', 'classic', \n                  'vintage', 'collector', 'racing', 'motorsport', 'concours',\n                  'gt', 'supercar', 'hypercar', 'exotic', 'bentley', 'rolls-royce'];\n\nconst filtered = sorted.filter(item => {\n  const title = (item.json.title || '').toLowerCase();\n  const content = (item.json.content || item.json.contentSnippet || '').toLowerCase();\n  return keywords.some(kw => title.includes(kw) || content.includes(kw));\n});\n\n// Function to extract image URL from RSS item\nfunction extractImageUrl(item) {\n  // Try enclosure (common in RSS 2.0)\n  if (item.enclosure && item.enclosure.url) {\n    return item.enclosure.url;\n  }\n  \n  // Try media:content or media:thumbnail\n  if (item['media:content'] && item['media:content'].$ && item['media:content'].$.url) {\n    return item['media:content'].$.url;\n  }\n  if (item['media:thumbnail'] && item['media:thumbnail'].$ && item['media:thumbnail'].$.url) {\n    return item['media:thumbnail'].$.url;\n  }\n  \n  // Try to extract from content HTML\n  const content = item.content || item['content:encoded'] || item.description || '';\n  const imgMatch = content.match(/<img[^>]+src=[\"']([^\"']+)[\"']/i);\n  if (imgMatch && imgMatch[1]) {\n    return imgMatch[1];\n  }\n  \n  // Try direct image field\n  if (item.image) {\n    if (typeof item.image === 'string') return item.image;\n    if (item.image.url) return item.image.url;\n  }\n  \n  return null;\n}\n\n// Return top 5 most relevant, formatted for the next steps\nreturn filtered.slice(0, 5).map(item => ({\n  json: {\n    sourceTitle: item.json.title || '',\n    sourceContent: item.json.content || item.json.contentSnippet || item.json.description || '',\n    sourceUrl: item.json.link || '',\n    sourceName: item.json.creator || 'External Source',\n    pubDate: item.json.pubDate || item.json.isoDate || '',\n    imageUrl: extractImageUrl(item.json)\n  }\n}));"
+      },
+      "id": "filter-relevant",
+      "name": "Filter & Prepare",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 50]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "HTTP-Referer",
+              "value": "https://exoticsweekly.com"
+            },
+            {
+              "name": "X-Title",
+              "value": "Exotics Weekly"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'anthropic/claude-sonnet-4', max_tokens: 2500, messages: [{ role: 'user', content: 'You are the lead writer for Exotics Weekly, a prestigious automotive publication covering exotic cars, historic motorsport, and collector car culture. Your writing style is elegant, authoritative, and evokes an early 1900s industrial aesthetic—think understated sophistication with deep automotive expertise. Rewrite this news item as an original Exotics Weekly article: Original Headline: ' + $json.sourceTitle + ' Original Content: ' + $json.sourceContent + ' Source: ' + $json.sourceName + ' REQUIREMENTS: 1. Write in Exotics Weekly distinctive voice - authoritative, elegant, knowledgeable 2. Create a completely original headline (never copy the source headline) 3. Add expert context, historical perspective, and market analysis where appropriate 4. Include a compelling subtitle that adds depth 5. Format the article content as clean HTML with <p> tags for paragraphs 6. Article length: 350-500 words 7. Do NOT plagiarize - completely rewrite and add original analysis 8. Choose the most appropriate category based on content 9. Generate 3-5 relevant tags. Respond with ONLY this JSON (no markdown, no explanation): {\"title\": \"Your original headline here\", \"subtitle\": \"Your compelling subtitle here\", \"excerpt\": \"A 1-2 sentence summary for preview cards\", \"content\": \"<p>Your full article with HTML paragraph tags...</p>\", \"category\": \"News\", \"tags\": [\"Tag1\", \"Tag2\", \"Tag3\"]} Valid categories: News, Reviews, Auctions, Heritage, Motorsport, Collecting' }] }) }}",
+        "options": {}
+      },
+      "id": "claude-rewrite",
+      "name": "Claude AI Rewrite",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [920, 50]
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst sourceData = $('Filter & Prepare').first().json;\n\n// Extract the text content from Claude's response\nlet articleText = '';\nif (response.choices && response.choices[0] && response.choices[0].message) {\n  articleText = response.choices[0].message.content;\n}\n\n// Parse the JSON from Claude's response\nlet article;\ntry {\n  articleText = articleText.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n  article = JSON.parse(articleText);\n} catch (e) {\n  const jsonMatch = articleText.match(/\\{[\\s\\S]*\\}/);\n  if (jsonMatch) {\n    article = JSON.parse(jsonMatch[0]);\n  } else {\n    throw new Error('Failed to parse Claude response: ' + articleText.substring(0, 200));\n  }\n}\n\n// Validate category\nconst validCategories = ['News', 'Reviews', 'Auctions', 'Heritage', 'Motorsport', 'Collecting'];\nif (!validCategories.includes(article.category)) {\n  article.category = 'News';\n}\n\nreturn [{\n  json: {\n    title: article.title,\n    subtitle: article.subtitle || null,\n    excerpt: article.excerpt,\n    content: article.content,\n    author: 'Exotics Weekly Editorial',\n    category: article.category,\n    tags: article.tags || [],\n    image_url: sourceData.imageUrl || null,\n    featured: false,\n    status: 'published',\n    source_url: sourceData.sourceUrl || null,\n    source_name: sourceData.sourceName || null\n  }\n}];"
+      },
+      "id": "parse-response",
+      "name": "Parse Claude Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1140, 50]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://exoticsweekly.com/api/stories",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer CFSfWwcw75kOvT+iMZ6Sb4fUf4PYTfdhMkJVs7nXJMU="
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "publish-story",
+      "name": "Publish to Website",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1360, 50]
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\n\nif (response.success) {\n  return [{\n    json: {\n      status: 'success',\n      message: `Published: ${response.story.title}`,\n      storyId: response.story.id,\n      slug: response.story.slug,\n      url: `https://exoticsweekly.com/story/${response.story.slug}`\n    }\n  }];\n} else {\n  return [{\n    json: {\n      status: 'error',\n      message: response.error || 'Unknown error'\n    }\n  }];\n}"
+      },
+      "id": "log-result",
+      "name": "Log Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1580, 50]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "limit-one",
+      "name": "Limit",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [820, 50]
+    }
+  ],
+  "connections": {
+    "Daily 8 AM": {
+      "main": [
+        [
+          { "node": "Carscoops", "type": "main", "index": 0 },
+          { "node": "Motor Authority", "type": "main", "index": 0 },
+          { "node": "GTspirit", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Carscoops": {
+      "main": [
+        [{ "node": "Merge All Feeds", "type": "main", "index": 0 }]
+      ]
+    },
+    "Motor Authority": {
+      "main": [
+        [{ "node": "Merge All Feeds", "type": "main", "index": 1 }]
+      ]
+    },
+    "GTspirit": {
+      "main": [
+        [{ "node": "Merge All Feeds", "type": "main", "index": 2 }]
+      ]
+    },
+    "Merge All Feeds": {
+      "main": [
+        [{ "node": "Filter & Prepare", "type": "main", "index": 0 }]
+      ]
+    },
+    "Filter & Prepare": {
+      "main": [
+        [{ "node": "Limit", "type": "main", "index": 0 }]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [{ "node": "Claude AI Rewrite", "type": "main", "index": 0 }]
+      ]
+    },
+    "Claude AI Rewrite": {
+      "main": [
+        [{ "node": "Parse Claude Response", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parse Claude Response": {
+      "main": [
+        [{ "node": "Publish to Website", "type": "main", "index": 0 }]
+      ]
+    },
+    "Publish to Website": {
+      "main": [
+        [{ "node": "Log Result", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
