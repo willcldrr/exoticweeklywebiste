@@ -53,8 +53,11 @@ function NewsletterSignup() {
   };
 
   return (
-    <section className="py-16 border-t border-white/10">
+    <section className="py-16 border-t border-white/10 racing-border-top relative">
       <div className="max-w-2xl mx-auto text-center px-4">
+        <div className="flex justify-center mb-6">
+          <span className="text-white/10 text-3xl">⚙</span>
+        </div>
         <h2 className="vintage-heading text-3xl md:text-4xl mb-4">
           The Weekly Dispatch
         </h2>
@@ -116,22 +119,16 @@ export default function Home() {
                 <Link
                   key={category}
                   href={`/category/${category.toLowerCase()}`}
-                  className="text-sm text-white/70 hover:text-white transition-colors tracking-wide uppercase"
+                  className="text-sm text-white/70 hover:text-white racing-accent-hover transition-colors tracking-wide uppercase"
                 >
                   {category}
                 </Link>
               ))}
             </nav>
-            <div className="flex items-center gap-4">
-              <Link
-                href="/admin"
-                className="text-xs text-white/50 hover:text-white/80 transition-colors"
-              >
-                Admin
-              </Link>
-            </div>
           </div>
         </div>
+        {/* Racing Stripe Accent */}
+        <div className="racing-stripe" />
       </header>
 
       {/* Mobile Navigation */}
@@ -141,7 +138,7 @@ export default function Home() {
             <Link
               key={category}
               href={`/category/${category.toLowerCase()}`}
-              className="text-xs text-white/70 hover:text-white transition-colors tracking-wide uppercase whitespace-nowrap"
+              className="text-xs text-white/70 hover:text-white racing-accent-hover transition-colors tracking-wide uppercase whitespace-nowrap"
             >
               {category}
             </Link>
@@ -149,10 +146,10 @@ export default function Home() {
         </div>
       </nav>
 
-      <main>
+      <main className="mechanical-pattern">
         {/* Hero Section */}
         {heroStory && (
-          <section className="border-b border-white/10">
+          <section className="border-b border-white/10 racing-stripes-bg">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
               <div className="grid lg:grid-cols-3 gap-8">
                 {/* Main Hero Story */}
@@ -256,14 +253,17 @@ export default function Home() {
           </section>
         )}
 
+        {/* Racing Stripe Divider */}
+        <div className="racing-stripe my-0" />
+
         {/* Latest Stories Grid */}
         <section className="py-12 border-b border-white/10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="vintage-heading text-2xl">Latest Stories</h2>
+              <h2 className="vintage-heading text-2xl section-header speed-lines pl-16">Latest Stories</h2>
               <Link
                 href="/archive"
-                className="text-sm text-white/50 hover:text-white transition-colors"
+                className="text-sm text-white/50 hover:text-white racing-accent-hover transition-colors"
               >
                 View Archive →
               </Link>
@@ -273,7 +273,7 @@ export default function Home() {
                 <Link
                   key={story.id}
                   href={`/story/${story.slug}`}
-                  className="group story-card block"
+                  className="group luxury-card block p-4 -m-4"
                 >
                   <div className="aspect-[16/10] bg-white/5 mb-4 overflow-hidden">
                     {story.imageUrl ? (
@@ -312,7 +312,7 @@ export default function Home() {
         {/* Categories Section */}
         <section className="py-12 border-b border-white/10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="vintage-heading text-2xl mb-8">Browse by Category</h2>
+            <h2 className="vintage-heading text-2xl mb-8 section-header">Browse by Category</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {CATEGORIES.map((category) => {
                 const categoryStories = getStoriesByCategory(category);
@@ -320,7 +320,7 @@ export default function Home() {
                   <Link
                     key={category}
                     href={`/category/${category.toLowerCase()}`}
-                    className="group block p-6 border border-white/10 hover:border-white/30 transition-colors text-center"
+                    className="group block p-6 border border-white/10 hover:border-white/30 transition-all text-center hover:bg-white/5"
                   >
                     <h3 className="vintage-heading text-lg mb-2 group-hover:text-white/80 transition-colors">
                       {category}
@@ -339,8 +339,11 @@ export default function Home() {
         <NewsletterSignup />
       </main>
 
+      {/* Racing Stripe Before Footer */}
+      <div className="racing-stripe" />
+
       {/* Footer */}
-      <footer className="border-t border-white/10 py-12">
+      <footer className="border-t border-white/10 py-12 relative footer-cog">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8">
             <div className="md:col-span-2">
@@ -365,7 +368,7 @@ export default function Home() {
                   <Link
                     key={category}
                     href={`/category/${category.toLowerCase()}`}
-                    className="block text-sm text-white/70 hover:text-white transition-colors"
+                    className="block text-sm text-white/70 hover:text-white racing-accent-hover transition-colors"
                   >
                     {category}
                   </Link>
@@ -379,29 +382,29 @@ export default function Home() {
               <nav className="space-y-2">
                 <Link
                   href="/about"
-                  className="block text-sm text-white/70 hover:text-white transition-colors"
+                  className="block text-sm text-white/70 hover:text-white racing-accent-hover transition-colors"
                 >
                   About
                 </Link>
                 <Link
                   href="/archive"
-                  className="block text-sm text-white/70 hover:text-white transition-colors"
+                  className="block text-sm text-white/70 hover:text-white racing-accent-hover transition-colors"
                 >
                   Archive
-                </Link>
-                <Link
-                  href="/admin"
-                  className="block text-sm text-white/70 hover:text-white transition-colors"
-                >
-                  Admin
                 </Link>
               </nav>
             </div>
           </div>
-          <div className="mt-12 pt-8 border-t border-white/10">
-            <p className="text-center text-white/40 text-xs">
+          <div className="mt-12 pt-8 border-t border-white/10 flex items-center justify-between">
+            <p className="text-white/40 text-xs">
               © {new Date().getFullYear()} Exotics Weekly. All rights reserved.
             </p>
+            <Link
+              href="/admin"
+              className="text-xs text-white/30 hover:text-white/60 transition-colors"
+            >
+              Admin
+            </Link>
           </div>
         </div>
       </footer>

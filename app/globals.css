@@ -11,6 +11,12 @@
 }
 
 :root {
+  /* Racing Red Accent Colors */
+  --racing-red: oklch(0.5 0.22 25);
+  --racing-red-bright: oklch(0.55 0.25 25);
+  --racing-red-subtle: oklch(0.45 0.15 25);
+  --racing-red-glow: oklch(0.5 0.22 25 / 0.3);
+
   --background: oklch(0.05 0 0);
   --foreground: oklch(1 0 0);
   --card: oklch(0.05 0 0);
@@ -198,5 +204,221 @@
     line-height: 1;
     padding-right: 0.5rem;
     font-weight: 700;
+  }
+
+  /* Racing Red Accent Elements */
+  .racing-accent {
+    color: var(--racing-red);
+  }
+
+  .racing-accent-hover:hover {
+    color: var(--racing-red-bright);
+  }
+
+  /* Racing Stripe Divider */
+  .racing-stripe {
+    position: relative;
+    height: 3px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--racing-red) 20%,
+      var(--racing-red) 80%,
+      transparent 100%
+    );
+  }
+
+  .racing-stripe::before,
+  .racing-stripe::after {
+    content: "";
+    position: absolute;
+    top: -2px;
+    height: 1px;
+    width: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.2) 20%,
+      rgba(255, 255, 255, 0.2) 80%,
+      transparent 100%
+    );
+  }
+
+  .racing-stripe::after {
+    top: auto;
+    bottom: -2px;
+  }
+
+  /* Diagonal Racing Stripes Background */
+  .racing-stripes-bg {
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 10px,
+      rgba(255, 255, 255, 0.02) 10px,
+      rgba(255, 255, 255, 0.02) 20px
+    );
+  }
+
+  /* Speed Lines Effect */
+  .speed-lines {
+    position: relative;
+  }
+
+  .speed-lines::before {
+    content: "";
+    position: absolute;
+    left: -60px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--racing-red-subtle),
+      var(--racing-red)
+    );
+    opacity: 0.7;
+  }
+
+  .speed-lines::after {
+    content: "";
+    position: absolute;
+    left: -45px;
+    top: calc(50% + 6px);
+    transform: translateY(-50%);
+    width: 35px;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3)
+    );
+  }
+
+  /* Gear/Cog Icon Decoration */
+  .gear-decoration {
+    position: relative;
+  }
+
+  .gear-decoration::after {
+    content: "⚙";
+    position: absolute;
+    right: -30px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.15);
+  }
+
+  /* Luxury Card with Red Accent */
+  .luxury-card {
+    position: relative;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .luxury-card::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--racing-red);
+    transition: width 0.3s ease;
+  }
+
+  .luxury-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow:
+      0 10px 40px rgba(0, 0, 0, 0.5),
+      0 0 20px var(--racing-red-glow);
+  }
+
+  .luxury-card:hover::before {
+    width: 100%;
+  }
+
+  /* Section Header with Accent */
+  .section-header {
+    position: relative;
+    display: inline-block;
+  }
+
+  .section-header::after {
+    content: "";
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 60px;
+    height: 2px;
+    background: var(--racing-red);
+  }
+
+  /* Mechanical Pattern Overlay */
+  .mechanical-pattern {
+    background-image:
+      radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+      radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+
+  /* Red Glow Effect on Hover */
+  .red-glow-hover {
+    transition: all 0.3s ease;
+  }
+
+  .red-glow-hover:hover {
+    text-shadow: 0 0 20px var(--racing-red-glow);
+  }
+
+  /* Racing Border - Top accent */
+  .racing-border-top {
+    position: relative;
+  }
+
+  .racing-border-top::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--racing-red),
+      transparent
+    );
+  }
+
+  /* Footer Cog Decoration */
+  .footer-cog {
+    position: relative;
+  }
+
+  .footer-cog::before {
+    content: "⚙";
+    position: absolute;
+    left: 50%;
+    top: -30px;
+    transform: translateX(-50%);
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.1);
+  }
+
+  /* Tachometer-inspired Progress Bar */
+  .tacho-accent {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0.2) 70%,
+      var(--racing-red-subtle) 85%,
+      var(--racing-red) 100%
+    );
   }
 }

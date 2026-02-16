@@ -53,8 +53,11 @@ function NewsletterSignup() {
   };
 
   return (
-    <div className="bg-white/5 border border-white/10 p-8">
-      <h3 className="vintage-heading text-xl mb-3">The Weekly Dispatch</h3>
+    <div className="bg-white/5 border border-white/10 p-8 relative racing-border-top">
+      <div className="flex justify-center mb-4">
+        <span className="text-white/15 text-xl">⚙</span>
+      </div>
+      <h3 className="vintage-heading text-xl mb-3 text-center">The Weekly Dispatch</h3>
       <p className="text-white/60 text-sm mb-4">
         Subscribe to receive the finest automotive journalism delivered to your inbox.
       </p>
@@ -140,7 +143,7 @@ export default function StoryPage({ params }: { params: Promise<{ slug: string }
                 <Link
                   key={category}
                   href={`/category/${category.toLowerCase()}`}
-                  className="text-sm text-white/70 hover:text-white transition-colors tracking-wide uppercase"
+                  className="text-sm text-white/70 hover:text-white racing-accent-hover transition-colors tracking-wide uppercase"
                 >
                   {category}
                 </Link>
@@ -148,6 +151,8 @@ export default function StoryPage({ params }: { params: Promise<{ slug: string }
             </nav>
           </div>
         </div>
+        {/* Racing Stripe Accent */}
+        <div className="racing-stripe" />
       </header>
 
       {/* Mobile Navigation */}
@@ -157,7 +162,7 @@ export default function StoryPage({ params }: { params: Promise<{ slug: string }
             <Link
               key={category}
               href={`/category/${category.toLowerCase()}`}
-              className="text-xs text-white/70 hover:text-white transition-colors tracking-wide uppercase whitespace-nowrap"
+              className="text-xs text-white/70 hover:text-white racing-accent-hover transition-colors tracking-wide uppercase whitespace-nowrap"
             >
               {category}
             </Link>
@@ -165,14 +170,14 @@ export default function StoryPage({ params }: { params: Promise<{ slug: string }
         </div>
       </nav>
 
-      <main>
+      <main className="mechanical-pattern">
         {/* Article Header */}
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <header className="py-12 border-b border-white/10">
+          <header className="py-12 border-b border-white/10 relative">
             <div className="flex items-center gap-3 text-sm mb-6">
               <Link
                 href={`/category/${story.category.toLowerCase()}`}
-                className="text-white/70 hover:text-white uppercase tracking-widest text-xs"
+                className="text-white/70 hover:text-white racing-accent-hover uppercase tracking-widest text-xs"
               >
                 {story.category}
               </Link>
@@ -189,10 +194,14 @@ export default function StoryPage({ params }: { params: Promise<{ slug: string }
             )}
 
             <div className="flex items-center gap-4">
-              <div>
+              <div className="flex items-center gap-2">
+                <span className="text-white/20">⚙</span>
                 <p className="text-white/80">By {story.author}</p>
               </div>
             </div>
+
+            {/* Racing stripe accent under header */}
+            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[color:var(--racing-red)] to-transparent opacity-50" />
           </header>
 
           {/* Featured Image */}
@@ -279,16 +288,19 @@ export default function StoryPage({ params }: { params: Promise<{ slug: string }
           </div>
         </article>
 
+        {/* Racing Stripe Divider */}
+        <div className="racing-stripe" />
+
         {/* More Stories */}
         <section className="border-t border-white/10 py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="vintage-heading text-2xl mb-8">More Stories</h2>
+            <h2 className="vintage-heading text-2xl mb-8 section-header">More Stories</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedStories.map((related) => (
                 <Link
                   key={related.id}
                   href={`/story/${related.slug}`}
-                  className="group story-card block"
+                  className="group luxury-card block p-3 -m-3"
                 >
                   <div className="aspect-[16/10] bg-white/5 mb-4 overflow-hidden">
                     {related.imageUrl ? (
@@ -320,8 +332,11 @@ export default function StoryPage({ params }: { params: Promise<{ slug: string }
         </section>
       </main>
 
+      {/* Racing Stripe Before Footer */}
+      <div className="racing-stripe" />
+
       {/* Footer */}
-      <footer className="border-t border-white/10 py-12">
+      <footer className="border-t border-white/10 py-12 relative footer-cog">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <Image
@@ -331,9 +346,17 @@ export default function StoryPage({ params }: { params: Promise<{ slug: string }
               height={40}
               className="h-8 w-auto"
             />
-            <p className="text-white/40 text-xs">
-              © {new Date().getFullYear()} Exotics Weekly. All rights reserved.
-            </p>
+            <div className="flex items-center gap-6">
+              <p className="text-white/40 text-xs">
+                © {new Date().getFullYear()} Exotics Weekly. All rights reserved.
+              </p>
+              <Link
+                href="/admin"
+                className="text-xs text-white/30 hover:text-white/60 transition-colors"
+              >
+                Admin
+              </Link>
+            </div>
           </div>
         </div>
       </footer>

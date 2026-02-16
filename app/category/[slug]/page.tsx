@@ -91,8 +91,8 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                   href={`/category/${cat.toLowerCase()}`}
                   className={`text-sm transition-colors tracking-wide uppercase ${
                     cat === category
-                      ? 'text-white'
-                      : 'text-white/70 hover:text-white'
+                      ? 'text-white racing-accent'
+                      : 'text-white/70 hover:text-white racing-accent-hover'
                   }`}
                 >
                   {cat}
@@ -101,6 +101,8 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
             </nav>
           </div>
         </div>
+        {/* Racing Stripe Accent */}
+        <div className="racing-stripe" />
       </header>
 
       {/* Mobile Navigation */}
@@ -111,7 +113,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
               key={cat}
               href={`/category/${cat.toLowerCase()}`}
               className={`text-xs transition-colors tracking-wide uppercase whitespace-nowrap ${
-                cat === category ? 'text-white' : 'text-white/70 hover:text-white'
+                cat === category ? 'text-white racing-accent' : 'text-white/70 hover:text-white racing-accent-hover'
               }`}
             >
               {cat}
@@ -120,7 +122,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
         </div>
       </nav>
 
-      <main>
+      <main className="mechanical-pattern">
         {/* Category Header */}
         <section className="border-b border-white/10 py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -149,14 +151,22 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                     <Link
                       key={story.id}
                       href={`/story/${story.slug}`}
-                      className="group story-card block"
+                      className="group luxury-card block p-4 -m-4"
                     >
                       <div className="aspect-[16/10] bg-white/5 mb-4 overflow-hidden">
-                        <div className="w-full h-full bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center">
-                          <span className="text-white/30 text-xs tracking-widest uppercase">
-                            {story.category}
-                          </span>
-                        </div>
+                        {story.imageUrl ? (
+                          <img
+                            src={story.imageUrl}
+                            alt={story.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center">
+                            <span className="text-white/30 text-xs tracking-widest uppercase">
+                              {story.category}
+                            </span>
+                          </div>
+                        )}
                       </div>
                       <div className="space-y-2">
                         <div className="flex items-center gap-2 text-xs">
@@ -212,8 +222,11 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
         </section>
       </main>
 
+      {/* Racing Stripe Before Footer */}
+      <div className="racing-stripe" />
+
       {/* Footer */}
-      <footer className="border-t border-white/10 py-12">
+      <footer className="border-t border-white/10 py-12 relative footer-cog">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <Image
@@ -223,9 +236,17 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
               height={40}
               className="h-8 w-auto"
             />
-            <p className="text-white/40 text-xs">
-              © {new Date().getFullYear()} Exotics Weekly. All rights reserved.
-            </p>
+            <div className="flex items-center gap-6">
+              <p className="text-white/40 text-xs">
+                © {new Date().getFullYear()} Exotics Weekly. All rights reserved.
+              </p>
+              <Link
+                href="/admin"
+                className="text-xs text-white/30 hover:text-white/60 transition-colors"
+              >
+                Admin
+              </Link>
+            </div>
           </div>
         </div>
       </footer>

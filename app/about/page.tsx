@@ -23,7 +23,7 @@ export default function AboutPage() {
                 <Link
                   key={category}
                   href={`/category/${category.toLowerCase()}`}
-                  className="text-sm text-white/70 hover:text-white transition-colors tracking-wide uppercase"
+                  className="text-sm text-white/70 hover:text-white racing-accent-hover transition-colors tracking-wide uppercase"
                 >
                   {category}
                 </Link>
@@ -31,6 +31,8 @@ export default function AboutPage() {
             </nav>
           </div>
         </div>
+        {/* Racing Stripe Accent */}
+        <div className="racing-stripe" />
       </header>
 
       {/* Mobile Navigation */}
@@ -40,7 +42,7 @@ export default function AboutPage() {
             <Link
               key={category}
               href={`/category/${category.toLowerCase()}`}
-              className="text-xs text-white/70 hover:text-white transition-colors tracking-wide uppercase whitespace-nowrap"
+              className="text-xs text-white/70 hover:text-white racing-accent-hover transition-colors tracking-wide uppercase whitespace-nowrap"
             >
               {category}
             </Link>
@@ -48,7 +50,7 @@ export default function AboutPage() {
         </div>
       </nav>
 
-      <main>
+      <main className="mechanical-pattern">
         {/* Hero Section */}
         <section className="border-b border-white/10 py-16">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -154,7 +156,7 @@ export default function AboutPage() {
         {/* Values Section */}
         <section className="border-t border-white/10 py-16">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="vintage-heading text-2xl mb-8">Our Standards</h2>
+            <h2 className="vintage-heading text-2xl mb-8 section-header">Our Standards</h2>
             <div className="grid md:grid-cols-3 gap-8">
               <div>
                 <h3 className="vintage-heading text-lg mb-3">Accuracy</h3>
@@ -182,8 +184,11 @@ export default function AboutPage() {
         </section>
       </main>
 
+      {/* Racing Stripe Before Footer */}
+      <div className="racing-stripe" />
+
       {/* Footer */}
-      <footer className="border-t border-white/10 py-12">
+      <footer className="border-t border-white/10 py-12 relative footer-cog">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <Image
@@ -193,9 +198,17 @@ export default function AboutPage() {
               height={40}
               className="h-8 w-auto"
             />
-            <p className="text-white/40 text-xs">
-              © {new Date().getFullYear()} Exotics Weekly. All rights reserved.
-            </p>
+            <div className="flex items-center gap-6">
+              <p className="text-white/40 text-xs">
+                © {new Date().getFullYear()} Exotics Weekly. All rights reserved.
+              </p>
+              <Link
+                href="/admin"
+                className="text-xs text-white/30 hover:text-white/60 transition-colors"
+              >
+                Admin
+              </Link>
+            </div>
           </div>
         </div>
       </footer>
